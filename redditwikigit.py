@@ -16,19 +16,24 @@ def export_wiki(subreddit):
         import sys
         print(rev, file=sys.stderr)
         author = rev['author'].name.encode() if rev['author'] else b'null'
+        path = rev['page'].name + '.md'
+        message = rev['reason'] or 'Update ' + rev['page'].name
         yield CommitCommand(
             ref=b'refs/heads/master',
             mark=i,
             author=None,
             committer=(
-                author, author + b'@users.reddit.com', rev['timestamp'], 0
+                author,
+                author.lower() + b'@users.reddit.com',
+                rev['timestamp'],
+                0
             ),
-            message=(rev['reason'] or '').encode(),
+            message=message.encode(),
             from_=from_,
             merges=None,
             file_iter=[
                 FileModifyCommand(
-                    path=(rev['page'].name + '.md').encode(),
+                    path=path.encode(),
                     mode=0o644,
                     dataref=None,
                     data=rev['page'].content_md.encode(),
